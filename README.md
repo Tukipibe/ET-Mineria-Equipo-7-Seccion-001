@@ -432,24 +432,7 @@ function vectorFor(featureNames, values, extra){
   return vec;
 }
 
-// ---- Naive Bayes (GaussianNB) ----
-function predictNB(vec){
-  const jll = MP.nb.classes.map((c,ci)=>{
-    let s = Math.log(MP.nb.class_prior[ci]);
-    for(let i=0;i<vec.length;i++){
-      const mean = MP.nb.theta[ci][i];
-      const v = MP.nb.var[ci][i];
-      s += -0.5*Math.log(2*Math.PI*v) - Math.pow(vec[i]-mean,2)/(2*v);
-    }
-    return s;
-  });
-  const maxJll = Math.max(...jll);
-  const exps = jll.map(x=>Math.exp(x-maxJll));
-  const sumExps = exps.reduce((a,b)=>a+b,0);
-  const probs = exps.map(x=>x/sumExps);
-  const idx = probs[1] >= probs[0] ? 1 : 0;
-  return { pred: MP.nb.classes[idx], probs, classes: MP.nb.classes };
-}
+
 
 // ---- Linear Regression ----
 function predictLR(vec){
@@ -458,16 +441,6 @@ function predictLR(vec){
   return y;
 }
 
-// ---- KMeans ----
-function predictKM(vec){
-  let best=-1, bestDist=Infinity;
-  MP.km.centers.forEach((center,ci)=>{
-    let d=0;
-    for(let i=0;i<vec.length;i++){ const diff = vec[i]-center[i]; d += diff*diff; }
-    if(d<bestDist){ bestDist=d; best=ci; }
-  });
-  return best;
-}
 
 function inverseScale(col, val){
   const idx = MP.scaler.numeric_cols.indexOf(col);
